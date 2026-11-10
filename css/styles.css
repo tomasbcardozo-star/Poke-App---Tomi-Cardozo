@@ -1,0 +1,709 @@
+
+/* ==========================================
+   1. CONFIGURACIÓN GENERAL
+========================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --rojo: #e3350d;
+  --rojo-oscuro: #b52b0b;
+  --amarillo: #ffcb05;
+  --azul: #2a75bb;
+  --azul-oscuro: #1d4e89;
+  --fondo: #f3f4f6;
+  --blanco: #ffffff;
+  --texto: #303030;
+  --texto-secundario: #777777;
+  --borde: #e5e7eb;
+  --sombra: 0 5px 18px rgba(0, 0, 0, 0.09);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: Arial, Helvetica, sans-serif;
+  background: var(--fondo);
+  color: var(--texto);
+  line-height: 1.6;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+}
+
+/* ==========================================
+   2. ENCABEZADO
+========================================== */
+
+.header {
+  width: 100%;
+  min-height: 90px;
+  padding: 15px 5%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+  background: var(--rojo);
+  border-bottom: 5px solid var(--amarillo);
+  box-shadow: var(--sombra);
+}
+
+/* Logo */
+
+.header-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-logo img {
+  display: block;
+  width: 150px;
+  height: auto;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.header-logo img:hover {
+  transform: scale(1.06);
+}
+
+/* Navegación */
+
+.header-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.header-nav a {
+  padding: 10px 12px;
+  color: var(--blanco);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: bold;
+  border-radius: 7px;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.header-nav a:hover {
+  background: var(--amarillo);
+  color: #222222;
+}
+
+/* Buscador */
+
+.header-search {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.header-search input {
+  width: 190px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  outline: none;
+  background: var(--blanco);
+  font-size: 13px;
+}
+
+.header-search input:focus {
+  border-color: var(--amarillo);
+}
+
+.header-search button {
+  padding: 9px 12px;
+  border: none;
+  border-radius: 8px;
+  background: var(--amarillo);
+  font-size: 16px;
+  transition: background 0.2s ease;
+}
+
+.header-search button:hover {
+  background: #ffe16b;
+}
+
+/* ==========================================
+   3. CONTENIDO PRINCIPAL
+========================================== */
+
+.main {
+  flex: 1;
+  width: 100%;
+  max-width: 1450px;
+  margin: 0 auto;
+  padding: 40px 5%;
+}
+
+#app {
+  width: 100%;
+  min-height: 350px;
+}
+
+#app h1 {
+  margin-bottom: 12px;
+  color: var(--azul-oscuro);
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.2;
+}
+
+#app p {
+  margin-bottom: 12px;
+}
+
+/* ==========================================
+   4. PANTALLA DE INICIO
+========================================== */
+
+.landing {
+  min-height: 400px;
+  padding: 70px 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(255, 203, 5, 0.22),
+      transparent 35%
+    ),
+    linear-gradient(135deg, #ffffff, #eaf2fb);
+  border: 1px solid var(--borde);
+  border-radius: 20px;
+  box-shadow: var(--sombra);
+}
+
+.landing h1 {
+  font-size: clamp(32px, 5vw, 52px) !important;
+  color: var(--rojo) !important;
+  margin-bottom: 20px !important;
+}
+
+.landing p {
+  max-width: 600px;
+  color: #555555;
+  font-size: 17px;
+}
+
+.landing p:last-child {
+  margin-top: 8px;
+  padding: 10px 18px;
+  background: var(--blanco);
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* ==========================================
+   5. POKÉDEX
+========================================== */
+
+.pokedex-section {
+  width: 100%;
+}
+
+.pokedex-section h1 {
+  padding-bottom: 14px;
+  margin-bottom: 28px !important;
+  border-bottom: 3px solid var(--amarillo);
+}
+
+/* Galería de Pokémon */
+
+.pokedex-gallery {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, 220px), 1fr)
+  );
+  gap: 24px;
+  align-items: stretch;
+}
+
+/* Tarjeta individual */
+
+.pokemon-card {
+  min-width: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  box-shadow: var(--sombra);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.pokemon-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.14);
+}
+
+/* Imagen del Pokémon */
+
+.pokemon-image {
+  min-height: 190px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(
+      circle,
+      #ffffff 15%,
+      #edf3f9 100%
+    );
+  border-bottom: 1px solid var(--borde);
+}
+
+.pokemon-image img {
+  display: block;
+  width: 100%;
+  max-width: 175px;
+  height: 165px;
+  object-fit: contain;
+  transition: transform 0.25s ease;
+}
+
+.pokemon-card:hover .pokemon-image img {
+  transform: scale(1.08);
+}
+
+/* Información */
+
+.pokemon-info {
+  flex: 1;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.pokemon-id {
+  display: inline-block;
+  margin-bottom: 5px;
+  color: var(--texto-secundario);
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.pokemon-info h2 {
+  margin-bottom: 10px;
+  color: #252525;
+  font-size: 23px;
+  text-transform: capitalize;
+}
+
+/* Tipos */
+
+.pokemon-types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.type {
+  display: inline-block;
+  padding: 5px 12px;
+  color: var(--blanco);
+  background: var(--azul);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+/* Colores de tipos Pokémon */
+
+.type-planta {
+  background: #63a948;
+}
+
+.type-veneno {
+  background: #9854a0;
+}
+
+.type-fuego {
+  background: #f08030;
+}
+
+.type-agua {
+  background: #3988d2;
+}
+
+.type-eléctrico {
+  background: #e7b800;
+  color: #292929;
+}
+
+.type-psíquico {
+  background: #e85880;
+}
+
+.type-tierra {
+  background: #b49b55;
+}
+
+.type-normal {
+  background: #9299a2;
+}
+
+/* Rareza */
+
+.pokemon-rareza {
+  margin-top: auto;
+  margin-bottom: 16px !important;
+  color: var(--texto-secundario);
+  font-size: 13px;
+}
+
+.pokemon-rareza::before {
+  content: "★ ";
+  color: var(--amarillo);
+}
+
+/* Botón detalles */
+
+.btn-detalle {
+  width: 100%;
+  margin-top: auto;
+  padding: 11px 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--azul);
+  color: var(--blanco);
+  font-weight: bold;
+  font-size: 14px;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.btn-detalle:hover {
+  background: var(--azul-oscuro);
+  transform: translateY(-2px);
+}
+
+/* ==========================================
+   6. INICIO DE SESIÓN
+========================================== */
+
+.login-section,
+.registro-section {
+  width: 100%;
+  max-width: 480px;
+  margin: 20px auto;
+  padding: 35px;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  box-shadow: var(--sombra);
+}
+
+.login-section h1,
+.registro-section h1 {
+  margin-bottom: 25px !important;
+  text-align: center;
+}
+
+#form-login,
+#form-registro {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#form-login label,
+#form-registro label {
+  margin-top: 8px;
+  color: #444444;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#form-login input,
+#form-registro input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  background: #fafafa;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+#form-login input:focus,
+#form-registro input:focus {
+  border-color: var(--azul);
+  box-shadow: 0 0 0 3px rgba(42, 117, 187, 0.13);
+}
+
+#form-login button,
+#form-registro button {
+  width: 100%;
+  margin-top: 18px;
+  padding: 13px;
+  border: none;
+  border-radius: 8px;
+  background: var(--rojo);
+  color: var(--blanco);
+  font-weight: bold;
+  transition: background 0.2s ease;
+}
+
+#form-login button:hover,
+#form-registro button:hover {
+  background: var(--rojo-oscuro);
+}
+
+/* ==========================================
+   7. BATALLA POKÉMON
+========================================== */
+
+.batalla-section {
+  min-height: 380px;
+  padding: 45px 25px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background:
+    radial-gradient(
+      circle at 15% 20%,
+      rgba(255, 203, 5, 0.22),
+      transparent 30%
+    ),
+    linear-gradient(135deg, #ffffff, #e6effa);
+  border: 1px solid var(--borde);
+  border-radius: 18px;
+  box-shadow: var(--sombra);
+}
+
+.batalla-section h1 {
+  color: var(--rojo) !important;
+}
+
+.batalla-section p {
+  margin: 10px 0 24px;
+  color: #555555;
+  font-size: 17px;
+}
+
+#btn-comenzar-batalla {
+  padding: 14px 26px;
+  border: none;
+  border-radius: 10px;
+  background: var(--rojo);
+  color: var(--blanco);
+  font-weight: bold;
+  box-shadow: 0 4px 0 var(--rojo-oscuro);
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+#btn-comenzar-batalla:hover {
+  background: var(--rojo-oscuro);
+  transform: translateY(-2px);
+}
+
+/* ==========================================
+   8. PIE DE PÁGINA
+========================================== */
+
+.footer {
+  width: 100%;
+  padding: 22px 5%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: #242424;
+  color: var(--blanco);
+  border-top: 4px solid var(--amarillo);
+}
+
+.footer p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.footer p:last-child {
+  color: #bbbbbb;
+}
+
+/* ==========================================
+   9. RESPONSIVE: TABLETS
+========================================== */
+
+@media (max-width: 1050px) {
+  .header {
+    justify-content: center;
+  }
+
+  .header-logo {
+    width: 100%;
+  }
+
+  .header-nav {
+    justify-content: center;
+  }
+
+  .header-search {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  .header-search input {
+    flex: 1;
+    width: 100%;
+  }
+
+  .pokedex-gallery {
+    gap: 18px;
+  }
+}
+
+/* ==========================================
+   10. RESPONSIVE: CELULARES
+========================================== */
+
+@media (max-width: 600px) {
+  .header {
+    padding: 18px 4%;
+    gap: 14px;
+  }
+
+  .header-logo img {
+    width: 130px;
+  }
+
+  .header-nav {
+    gap: 3px;
+  }
+
+  .header-nav a {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .main {
+    padding: 25px 4%;
+  }
+
+  .landing {
+    min-height: 330px;
+    padding: 40px 18px;
+  }
+
+  .landing p {
+    font-size: 15px;
+  }
+
+  .pokedex-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .pokemon-image {
+    min-height: 130px;
+    padding: 10px;
+  }
+
+  .pokemon-image img {
+    height: 115px;
+  }
+
+  .pokemon-info {
+    padding: 12px;
+  }
+
+  .pokemon-info h2 {
+    font-size: 18px;
+  }
+
+  .pokemon-id {
+    font-size: 10px;
+  }
+
+  .type {
+    padding: 4px 8px;
+    font-size: 9px;
+  }
+
+  .pokemon-rareza {
+    font-size: 12px;
+  }
+
+  .btn-detalle {
+    padding: 9px 6px;
+    font-size: 12px;
+  }
+
+  .login-section,
+  .registro-section {
+    padding: 24px 18px;
+  }
+
+  .footer {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* ==========================================
+   11. ACCESIBILIDAD
+========================================== */
+
+button:focus-visible,
+a:focus-visible,
+.header-logo img:focus-visible {
+  outline: 3px solid var(--azul);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+}
