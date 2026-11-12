@@ -323,41 +323,52 @@ const registro = `
         Nombre
       </label>
 
-      <input 
-        type="text" 
+      <input
+        type="text"
         id="nombre"
+        required
+        minlength="2"
+        maxlength="60"
       />
 
       <label for="email">
         Email
       </label>
 
-      <input 
-        type="email" 
+      <input
+        type="email"
         id="email"
+        required
       />
 
       <label for="nuevo-username">
         Usuario
       </label>
 
-      <input 
-        type="text" 
+      <input
+        type="text"
         id="nuevo-username"
+        required
+        minlength="3"
+        maxlength="30"
       />
 
       <label for="nueva-password">
         Contraseña
       </label>
 
-      <input 
-        type="password" 
+      <input
+        type="password"
         id="nueva-password"
+        required
+        minlength="6"
       />
 
       <button type="submit">
         Registrarse
       </button>
+
+      <p id="mensaje-registro"></p>
 
     </form>
 
@@ -365,9 +376,81 @@ const registro = `
 `;
 
 // Función para cargar los elementos dinámicos
+
 function cargarRegistro() {
-  console.log("Formulario de registro cargado");
+
+  const formularioRegistro = document.querySelector("#form-registro");
+
+  formularioRegistro.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    // 1. Capturar los datos del formulario
+    const nombre = document.querySelector("#nombre").value;
+    const email = document.querySelector("#email").value;
+    const username = document.querySelector("#nuevo-username").value;
+    const password = document.querySelector("#nueva-password").value;
+
+    const mensaje = document.querySelector("#mensaje-registro");
+
+    // 2. Comprobar que los campos no estén vacíos
+    if (nombre === "" || email === "" || username === "" || password === "") {
+      mensaje.innerHTML = "Completá todos los campos.";
+      return;
+    }
+
+    // 3. Obtener los usuarios guardados
+    const usuarios = leerUsuarios();
+
+    // 4. Comprobar que el usuario no exista
+    for (let usuario of usuarios) {
+
+      if (usuario.username === username) {
+        mensaje.innerHTML = "El nombre de usuario ya existe.";
+        return;
+      }
+
+      if (usuario.email === email) {
+        mensaje.innerHTML = "El email ya está registrado.";
+        return;
+      }
+
+    }
+
+    // 5. Calcular el ID del nuevo usuario
+    let nuevoId = 1;
+
+    for (let usuario of usuarios) {
+      if (usuario.id >= nuevoId) {
+        nuevoId = usuario.id + 1;
+      }
+    }
+
+    // 6. Crear el objeto del nuevo usuario
+    const nuevoUsuario = {
+      id: nuevoId,
+      nombre: nombre,
+      email: email,
+      username: username,
+      password: password,
+      avatar: "./assets/avatar/default.png",
+      admin: false
+    };
+
+    // 7. Guardar el usuario
+    guardarUsuarios(nuevoUsuario);
+
+    mensaje.innerHTML = "Usuario registrado correctamente. Ya podés iniciar sesión.";
+
+    // 8. Mostrar mensaje de confirmación
+    mensaje.innerHTML = "Usuario registrado correctamente. Ya podés iniciar sesión.";
+
+    console.log("Usuario registrado correctamente");
+
+  });
+
 }
+
 
 // Evento del botón Registrarse
 const botonRegistro = document.querySelector("#link-registro");
