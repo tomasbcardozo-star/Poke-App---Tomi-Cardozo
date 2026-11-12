@@ -1,7 +1,8 @@
-export const pokemones = [
+export const pokemonesDefecto = [
   {
     id: 1,
     nombre: "Bulbasaur",
+    descripcion: "Bulbasaur es un Pokémon de tipo Planta y Veneno. Lleva una semilla en la espalda que crece junto a él.",
     tipo: ["Planta", "Veneno"],
     altura: 0.7,
     peso: 6.9,
@@ -15,7 +16,7 @@ export const pokemones = [
     evolucion: "Ivysaur",
     nivelEvolucion: 16,
     rareza: "Común",
-    imagen: "./assets/img/bulbasaur.png",
+    imagen: "./assets/img/Bulbasaur.png",
     sonido: "./assets/sound/bulbasaur.mp3",
     shiny: true,
     imagenShiny: "./assets/img/bulbasaur-shiny.png",
@@ -24,6 +25,7 @@ export const pokemones = [
   {
     id: 4,
     nombre: "Charmander",
+    descripcion: "Charmander es un Pokémon de tipo Fuego. La llama de su cola refleja su energía y su estado de salud.",
     tipo: ["Fuego"],
     altura: 0.6,
     peso: 8.5,
@@ -46,6 +48,7 @@ export const pokemones = [
   {
     id: 7,
     nombre: "Squirtle",
+    descripcion: "Squirtle es un Pokémon de tipo Agua. Su caparazón lo protege y le permite nadar con gran facilidad.",
     tipo: ["Agua"],
     altura: 0.5,
     peso: 9.0,
@@ -59,7 +62,7 @@ export const pokemones = [
     evolucion: "Wartortle",
     nivelEvolucion: 16,
     rareza: "Común",
-    imagen: "./assets/img/squirtle.png",
+    imagen: "./assets/img/Squirtle.png",
     sonido: "./assets/sound/squirtle.mp3",
     shiny: true,
     imagenShiny: "./assets/img/squirtle-shiny.png",
@@ -68,6 +71,8 @@ export const pokemones = [
   {
     id: 25,
     nombre: "Pikachu",
+    // ID 25 - Pikachu
+    descripcion: "Pikachu es un Pokémon de tipo Eléctrico. Almacena electricidad en sus mejillas y la libera para defenderse.",
     tipo: ["Eléctrico"],
     altura: 0.4,
     peso: 6.0,
@@ -90,6 +95,7 @@ export const pokemones = [
   {
     id: 54,
     nombre: "Psyduck",
+    descripcion: "Psyduck es un Pokémon de tipo Agua. Sufre frecuentes dolores de cabeza que pueden despertar sus poderes psíquicos.",
     tipo: ["Agua"],
     altura: 0.8,
     peso: 19.6,
@@ -112,6 +118,7 @@ export const pokemones = [
   {
     id: 104,
     nombre: "Cubone",
+    descripcion: "Cubone es un Pokémon de tipo Tierra. Utiliza un cráneo como casco y combate con un hueso.",
     tipo: ["Tierra"],
     altura: 0.4,
     peso: 6.5,
@@ -134,6 +141,7 @@ export const pokemones = [
   {
     id: 133,
     nombre: "Eevee",
+    descripcion: "Eevee es un Pokémon de tipo Normal. Su genética inestable le permite evolucionar de diferentes maneras.",
     tipo: ["Normal"],
     altura: 0.3,
     peso: 6.5,
@@ -156,6 +164,7 @@ export const pokemones = [
   {
     id: 143,
     nombre: "Snorlax",
+    descripcion: "Snorlax es un Pokémon de tipo Normal. Pasa gran parte del día durmiendo y despierta principalmente para comer.",
     tipo: ["Normal"],
     altura: 2.1,
     peso: 460.0,
@@ -178,6 +187,7 @@ export const pokemones = [
   {
     id: 150,
     nombre: "Mewtwo",
+    descripcion: "Mewtwo es un Pokémon legendario de tipo Psíquico. Fue creado mediante investigaciones genéticas y posee un poder extraordinario.",
     tipo: ["Psíquico"],
     altura: 2.0,
     peso: 122.0,
@@ -200,6 +210,7 @@ export const pokemones = [
   {
     id: 151,
     nombre: "Mew",
+    descripcion: "Mew es un Pokémon mítico de tipo Psíquico. Es extremadamente raro y posee el material genético de numerosos Pokémon.",
     tipo: ["Psíquico"],
     altura: 0.4,
     peso: 4.0,
