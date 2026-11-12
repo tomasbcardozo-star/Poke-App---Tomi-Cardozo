@@ -11,6 +11,25 @@ import {
 
 const app = document.querySelector("#app");
 
+let usuarioActivo = null;
+
+// Recuperar el usuario que había iniciado sesión
+const idGuardado = localStorage.getItem("usuarioActivoId");
+
+if (idGuardado !== null) {
+
+  const usuarios = leerUsuarios();
+
+  for (let usuario of usuarios) {
+
+    if (usuario.id === JSON.parse(idGuardado)) {
+      usuarioActivo = usuario;
+    }
+
+  }
+
+}
+
 // ==========================================
 // 1. LANDING
 // ==========================================
@@ -247,64 +266,72 @@ const login = `
 
             <input type="password" id="password" required />
             <button type="submit">Ingresar</button>
+            <p id="mensaje-login"></p>
           </form>
         </section>
 `;
 
 // Función para cargar los elementos dinámicos
+
 function cargarLogin() {
-  console.log("Formulario de inicio de sesión cargado");
+
+  const formularioLogin = document.querySelector("#form-login");
+
+  formularioLogin.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    // Capturar los datos del formulario
+    const username = document.querySelector("#username").value;
+    const password = document.querySelector("#password").value;
+
+    // Obtener usuarios registrados
+    const usuarios = leerUsuarios();
+
+    // Buscar al usuario
+    for (let usuario of usuarios) {
+
+      if (usuario.username === username && usuario.password === password) {
+
+        // Guardar el usuario que inició sesión
+        usuarioActivo = usuario;
+
+        // Guardar su ID en localStorage
+        localStorage.setItem(
+          "usuarioActivoId",
+          JSON.stringify(usuario.id)
+        );
+
+        console.log("Sesión iniciada correctamente");
+
+        // Mostrar el perfil correspondiente
+        mostrarPerfil();
+
+        return;
+      }
+
+    }
+
+    // Si no encontramos al usuario
+    document.querySelector("#mensaje-login").innerHTML =
+      "Usuario o contraseña incorrectos.";
+
+  });
+
 }
 
 // Evento del botón Iniciar sesión
+
 const botonLogin = document.querySelector("#link-login");
 
-botonLogin.addEventListener("click", function (event) {
+botonLogin.addEventListener("click", function(event) {
+
   event.preventDefault();
 
   app.innerHTML = login;
 
   cargarLogin();
 
-  const formularioLogin = document.querySelector("#form-login");
-
-  formularioLogin.addEventListener("submit", function (event) {
-    event.preventDefault();
-    const username = document.querySelector("#username").value;
-    const password = document.querySelector("#password").value;
-    let encontrado = false;
-    const usuarios = leerUsuarios();
-    for (let usuario of usuarios) {
-      if (usuario.username === username && usuario.password === password) {
-        encontrado = true;
-        if (usuario.admin === true) {
-          app.innerHTML = perfilAdmin;
-          cargarPerfilAdmin();
-        } else {
-          app.innerHTML = perfilEstandar;
-          cargarPerfilEstandar();
-        }
-        document.querySelector(".user-profile-username").textContent =
-          usuario.username;
-        document.querySelector(".user-profile-email").textContent =
-          usuario.email;
-        document.querySelector(".user-profile-avatar").src = usuario.avatar;
-        document.querySelector(".user-profile-avatar").alt =
-          `Avatar de ${usuario.username}`;
-        break;
-      } else {
-        encontrado = false;
-      }
-    }
-    if (!encontrado) {
-      document
-        .querySelector("#form-login")
-        .insertAdjacentHTML(
-          "beforeend",
-          `<p class="error-message">Usuario o contraseña incorrectos</p>`,
-        );
-    }
-  });
 });
 
 // ==========================================
@@ -541,6 +568,15 @@ function cargarPerfilAdmin() {
   formularioNuevoPokemon.addEventListener("submit", function (event) {
     event.preventDefault();
 
+// Verificar los permisos del usuario
+if (usuarioActivo === null || usuarioActivo.admin === false) {
+
+  console.log("No tenés permisos para agregar Pokémon");
+
+  return;
+
+}
+
     const numero = document.querySelector("#pokemon-number");
     const nombre = document.querySelector("#pokemon-name");
     const tipo = document.querySelector("#pokemon-type");
@@ -745,6 +781,78 @@ const perfilAdmin = ` <section class="user-profile" id="user-profile">
           </form>
         </section>`;
 
+function mostrarPerfil() {
+
+  // Comprobar si hay un usuario conectado
+  if (usuarioActivo === null) {
+
+    app.innerHTML = login;
+    cargarLogin();
+
+    return;
+  }
+
+  // Mostrar el perfil según sus permisos
+  if (usuarioActivo.admin === true) {
+
+    app.innerHTML = perfilAdmin;
+
+  } else {
+
+    app.innerHTML = perfilEstandar;
+
+  }
+
+  // Agregar el botón de cierre de sesión
+  document.querySelector("#user-profile").innerHTML += `
+    <button type="button" id="btn-cerrar-sesion">
+      Cerrar sesión
+    </button>
+  `;
+
+  // Mostrar los datos del usuario
+  document.querySelector(".user-profile-username").textContent =
+    usuarioActivo.username;
+
+  document.querySelector(".user-profile-email").textContent =
+    usuarioActivo.email;
+
+  document.querySelector(".user-profile-avatar").src =
+    usuarioActivo.avatar;
+
+  // Cargar las funciones del perfil
+  if (usuarioActivo.admin === true) {
+
+    cargarPerfilAdmin();
+
+  } else {
+
+    cargarPerfilEstandar();
+
+  }
+
+  // Evento para cerrar sesión
+  const botonCerrar = document.querySelector("#btn-cerrar-sesion");
+
+  botonCerrar.addEventListener("click", function() {
+
+    usuarioActivo = null;
+
+    localStorage.setItem(
+      "usuarioActivoId",
+      JSON.stringify(null)
+    );
+
+    app.innerHTML = landing;
+
+    cargarLanding();
+
+    console.log("Sesión cerrada correctamente");
+
+  });
+
+}
+
 // ==========================================
 // 8. LANDING INICIAL
 // ==========================================
@@ -772,3 +880,21 @@ botonBatalla.addEventListener("click", function (event) {
 app.innerHTML = landing;
 
 cargarLanding();
+
+// Evento del enlace Mi perfil
+const botonPerfil = document.querySelector("#link-perfil");
+
+botonPerfil.addEventListener("click", function(event) {
+
+  event.preventDefault();
+
+  mostrarPerfil();
+
+});
+
+// Recuperar la pantalla del usuario conectado
+if (usuarioActivo !== null) {
+
+  mostrarPerfil();
+
+}

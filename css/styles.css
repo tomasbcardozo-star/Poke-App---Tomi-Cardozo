@@ -756,3 +756,19 @@ a:focus-visible,
   height: 160px;
   object-fit: contain;
 }
+
+/* Botón de cerrar sesión */
+
+#btn-cerrar-sesion {
+  margin-top: 20px;
+  padding: 12px 20px;
+  background-color: var(--rojo);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+#btn-cerrar-sesion:hover {
+  background-color: var(--rojo-oscuro);
+}
