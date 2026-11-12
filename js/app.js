@@ -1,5 +1,9 @@
-import { pokemones } from "./db/pokemones.js";
-import { usuarios } from "./db/usuarios.js";
+import {
+  leerPokemones,
+  guardarPokemones,
+  leerUsuarios,
+  guardarUsuarios,
+} from "./persistencia.js";
 
 // ==========================================
 // ELEMENTO PRINCIPAL DE LA APLICACIÓN
@@ -49,6 +53,8 @@ const pokedex = `
 
 // Función para cargar los elementos dinámicos
 function cargarPokedex() {
+  const pokemones = leerPokemones();
+
   const pokedexGallery = document.querySelector("#pokedex-gallery");
 
   for (let pokemon of pokemones) {
@@ -88,6 +94,127 @@ function cargarPokedex() {
 
       </article>
     `;
+  }
+
+  // Agregamos un evento a cada botón "Ver detalles".
+  const botonesDetalle = pokedexGallery.querySelectorAll(".btn-detalle");
+
+  for (let boton of botonesDetalle) {
+    boton.addEventListener("click", function () {
+      mostrarDetallePokemon(boton.dataset.id);
+    });
+  }
+
+}
+
+function escaparHTML(valor) {
+  return String(valor ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// Mostrar la información del Pokémon elegido.
+function mostrarDetallePokemon(id) {
+  const pokemones = leerPokemones();
+  let seleccionado = null;
+
+  // Buscamos el Pokémon por su número.
+  for (let pokemon of pokemones) {
+    if (pokemon.id === Number(id)) {
+      seleccionado = pokemon;
+      break;
+    }
+  }
+
+  if (seleccionado === null) {
+    app.innerHTML = "<p>El Pokémon seleccionado no existe.</p>";
+    return;
+  }
+
+  const p = seleccionado;
+
+  const evolucion = p.tieneEvolucion
+    ? `${p.evolucion || "Sin nombre registrado"}${p.nivelEvolucion ? ` (nivel ${p.nivelEvolucion})` : ""}`
+    : "No tiene evolución";
+
+  // Construimos la pantalla con los datos del Pokémon.
+  app.innerHTML = `
+    <section class="detalle-pokemon">
+      <button type="button" id="btn-volver-pokedex" class="btn-detalle">
+        ← Volver a la Pokédex
+      </button>
+
+      <h1>${escaparHTML(p.nombre)} <small>N.º ${p.id}</small></h1>
+
+      <img
+        class="detalle-imagen"
+        id="imagen-detalle"
+        src="${escaparHTML(p.imagen)}"
+        alt="${escaparHTML(p.nombre)}"
+      />
+
+      <p>${escaparHTML(p.descripcion || "Descripción todavía no cargada.")}</p>
+
+      <div class="detalle-datos">
+        <p><strong>Tipo:</strong> ${escaparHTML(p.tipo.join(" / "))}</p>
+        <p><strong>Rareza:</strong> ${escaparHTML(p.rareza)}</p>
+        <p><strong>Altura:</strong> ${p.altura} m</p>
+        <p><strong>Peso:</strong> ${p.peso} kg</p>
+        <p><strong>Generación:</strong> ${p.generacion}</p>
+        <p><strong>HP:</strong> ${p.hp}</p>
+        <p><strong>Ataque:</strong> ${p.ataque}</p>
+        <p><strong>Defensa:</strong> ${p.defensa}</p>
+        <p><strong>Velocidad:</strong> ${p.velocidad}</p>
+        <p><strong>Habilidad:</strong> ${escaparHTML(p.habilidad)}</p>
+        <p><strong>Evolución:</strong> ${escaparHTML(evolucion)}</p>
+        <p><strong>Shiny:</strong> ${p.shiny ? "Sí" : "No"}</p>
+      </div>
+
+      ${p.sonido ? `
+        <div class="detalle-audio">
+          <h2>Sonido</h2>
+          <audio controls src="${escaparHTML(p.sonido)}"></audio>
+        </div>
+      ` : ""}
+
+      ${p.shiny && p.imagenShiny ? `
+        <div class="detalle-shiny">
+          <h2>Forma shiny</h2>
+          <img
+            id="imagen-shiny-detalle"
+            src="${escaparHTML(p.imagenShiny)}"
+            alt="Forma shiny de ${escaparHTML(p.nombre)}"
+          />
+        </div>
+      ` : ""}
+    </section>
+  `;
+
+  // Botón para volver a la Pokédex.
+  document.querySelector("#btn-volver-pokedex")
+    .addEventListener("click", function () {
+      app.innerHTML = pokedex;
+      cargarPokedex();
+    });
+
+  // Imagen alternativa si falla la imagen principal.
+  document.querySelector("#imagen-detalle")
+    .addEventListener("error", function (evento) {
+      evento.target.src = "./assets/img/logo-pokemon.svg";
+    }, { once: true });
+
+  // Aviso si falta la imagen shiny.
+  const imagenShiny = document.querySelector("#imagen-shiny-detalle");
+
+  if (imagenShiny) {
+    imagenShiny.addEventListener("error", function () {
+      imagenShiny.replaceWith(
+        document.createTextNode("Imagen shiny no disponible todavía.")
+      );
+    }, { once: true });
   }
 }
 
@@ -146,6 +273,7 @@ botonLogin.addEventListener("click", function (event) {
     const username = document.querySelector("#username").value;
     const password = document.querySelector("#password").value;
     let encontrado = false;
+    const usuarios = leerUsuarios();
     for (let usuario of usuarios) {
       if (usuario.username === username && usuario.password === password) {
         encontrado = true;
@@ -156,6 +284,13 @@ botonLogin.addEventListener("click", function (event) {
           app.innerHTML = perfilEstandar;
           cargarPerfilEstandar();
         }
+        document.querySelector(".user-profile-username").textContent =
+          usuario.username;
+        document.querySelector(".user-profile-email").textContent =
+          usuario.email;
+        document.querySelector(".user-profile-avatar").src = usuario.avatar;
+        document.querySelector(".user-profile-avatar").alt =
+          `Avatar de ${usuario.username}`;
         break;
       } else {
         encontrado = false;
@@ -326,17 +461,49 @@ function cargarPerfilAdmin() {
     const numero = document.querySelector("#pokemon-number");
     const nombre = document.querySelector("#pokemon-name");
     const tipo = document.querySelector("#pokemon-type");
+    const altura = document.querySelector("#pokemon-height");
+    const peso = document.querySelector("#pokemon-weight");
+    const generacion = document.querySelector("#pokemon-generation");
+    const hp = document.querySelector("#pokemon-hp");
+    const ataque = document.querySelector("#pokemon-attack");
+    const velocidad = document.querySelector("#pokemon-speed");
+    const defensa = document.querySelector("#pokemon-defense");
+    const habilidad = document.querySelector("#pokemon-ability");
+    const tieneEvolucion = document.querySelector(
+      'input[name="pokemon-has-evolution"]:checked',
+    );
+    const evolucion = document.querySelector("#pokemon-evolution");
+    const nivelEvolucion = document.querySelector("#pokemon-evolution-level");
+    const rareza = document.querySelector("#pokemon-rarity");
     const imagen = document.querySelector("#pokemon-image");
+    const sonido = document.querySelector("#pokemon-sound");
+    const shiny = document.querySelector("#pokemon-shiny");
+    const imagenShiny = document.querySelector("#pokemon-shiny-image");
 
     const nuevoPokemon = {
       id: numero.valueAsNumber,
       nombre: nombre.value,
       tipo: [tipo.value],
+      altura: altura.valueAsNumber,
+      peso: peso.valueAsNumber,
+      generacion: generacion.valueAsNumber,
+      hp: hp.valueAsNumber,
+      ataque: ataque.valueAsNumber,
+      velocidad: velocidad.valueAsNumber,
+      defensa: defensa.valueAsNumber,
+      habilidad: habilidad.value,
+      tieneEvolucion: tieneEvolucion.value === "true",
+      evolucion: evolucion.value,
+      nivelEvolucion: nivelEvolucion.valueAsNumber,
+      rareza: rareza.value,
       imagen: imagen.value,
+      sonido: sonido.value,
+      shiny: shiny.checked,
+      imagenShiny: imagenShiny.value,
     };
 
     console.log("Nuevo Pokémon agregado:", nuevoPokemon);
-    pokemones.push(nuevoPokemon);
+    guardarPokemones(nuevoPokemon);
 
     formularioNuevoPokemon.reset();
     numero.focus();
@@ -377,8 +544,119 @@ const perfilAdmin = ` <section class="user-profile" id="user-profile">
             <label for="pokemon-type">Tipo:</label>
             <input type="text" id="pokemon-type" required />
 
+            <label for="pokemon-height">Altura (m):</label>
+            <input type="number" id="pokemon-height" step="0.1" required />
+
+            <label for="pokemon-weight">Peso (kg):</label>
+            <input type="number" id="pokemon-weight" step="0.1" required />
+
+            <label for="pokemon-generation">Generación:</label>
+            <input type="number" id="pokemon-generation" required />
+
+            <label for="pokemon-hp">HP:</label>
+            <input type="number" id="pokemon-hp" required />
+            <label for="pokemon-attack">Ataque:</label>
+            <input type="number" id="pokemon-attack" required />
+            <label for="pokemon-speed">Velocidad:</label>
+            <input type="number" id="pokemon-speed" required />
+            <label for="pokemon-defense">Defensa:</label>
+            <input type="number" id="pokemon-defense" required />
+
+            <label for="pokemon-ability">Habilidad:</label>
+            <select id="pokemon-ability" required>
+             <option value="" disabled selected>Seleccioná una habilidad</option>
+              <option value="" disabled selected>Selecciona una habilidad</option>
+              <option value="Adaptability">Adaptable</option>
+              <option value="Battle Armor">Armadura batalla</option>
+              <option value="Blaze">Mar llamas</option>
+              <option value="Chlorophyll">Clorofila</option>
+              <option value="Clear Body">Cuerpo puro</option>
+              <option value="Color Change">Cambio color</option>
+              <option value="Compound Eyes">Ojo compuesto</option>
+              <option value="Cute Charm">Gran encanto</option>
+              <option value="Early Bird"> madrugar</option>
+              <option value="Effect Spore">Efecto espora</option>
+              <option value="Flame Body">Cuerpo llama</option>
+              <option value="Flash Fire">Absorbe fuego</option>
+              <option value="Guts">Agallas</option>
+              <option value="Huge Power">Potencia</option>
+              <option value="Hustle">Entusiasmo</option>
+              <option value="Hyper Cutter"> Corte fuerte</option>
+              <option value="Illuminate"> iluminacion</option>
+              <option value="Immunity">Inmunidad</option>
+              <option value="Inner Focus">Foco interno</option>
+              <option value="Intimidate">Intimidación</option>
+              <option value="Keen Eye">Vista lince</option>
+              <option value="Levitate">Levitación</option>
+              <option value="Lightning Rod">Pararrayos</option>
+              <option value="Limber">Flexibilidad</option>
+              <option value="Liquid Ooze">Lodo líquido</option>
+              <option value="Magic Guard">Muro mágico</option>
+              <option value="Natural Cure">Cura natural</option>
+              <option value="Oblivious">Despiste</option>
+              <option value="Overgrow">Espesura</option>
+              <option value="Own Tempo">Ritmo propio</option>
+              <option value="Pickup">Recogida</option>
+              <option value="Poison Point">Punto tóxico</option>
+              <option value="Pressure">Presión</option>
+              <option value="Run Away">Fuga</option>
+              <option value="Serene Grace"> dicha</option>
+              <option value="Shed Skin">Mudar</option>
+              <option value="Shield Dust">Polvo escudo</option>
+              <option value="Soundproof">Insonorizar</option>
+              <option value="Static">Electricidad estática</option>
+              <option value="Stench">Hedor</option>
+              <option value="Sturdy">Robustez</option>
+              <option value="Swarm">Enjambre</option>
+              <option value="Swift Swim">N जल veloz</option>
+              <option value="Synchronize"> sincronía</option>
+              <option value="Thick Fat">Sebo</option>
+              <option value="Torrent">Torrente</option>
+              <option value="Trace">Rastro</option>
+              <option value="Volt Absorb">Absorbe electricidad</option>
+              <option value="Water Absorb">Absorbe agua</option>
+              <option value="Wonder Guard">Superguarda</option>
+            </select>
+
+            <fieldset>
+              <legend>¿Tiene evolución?</legend>
+              <label for="  pokemon-has-evolution-yes">
+                <input type="radio" id="pokemon-has-evolution-yes" name="pokemon-has-evolution" value="true" required />
+                Sí
+              </label>
+              <label for="pokemon-has-evolution-no">
+                <input type="radio" id="pokemon-has-evolution-no" name="pokemon-has-evolution" value="false" required />
+                No
+              </label>
+            </fieldset>
+
+            <label for="pokemon-evolution">Evolución:</label>
+            <input type="text" id="pokemon-evolution" />
+
+            <label for="pokemon-evolution-level">Nivel de evolución:</label>
+            <input type="number" id="pokemon-evolution-level" />
+
+            <label for="pokemon-rarity">Rareza:</label>
+            <select id="pokemon-rarity" required>
+              <option value="" disabled selected>Seleccioná una rareza</option>
+              <option value="Común">Común</option>
+              <option value="Raro">Raro</option>
+              <option value="Legendario">Legendario</option>
+              <option value="Mítico">Mítico</option>
+              <option value="Singular">Singular</option>
+            </select>
+
             <label for="pokemon-image">Imagen (URL):</label>
             <input type="text" id="pokemon-image" required />
+
+            <label for="pokemon-sound">Sonido (URL):</label>
+            <input type="text" id="pokemon-sound" required />
+
+            <label for="pokemon-shiny">¿Es shiny?</label>
+            <input type="checkbox" id="pokemon-shiny" />
+
+            <label for="pokemon-shiny-image">Imagen shiny (URL):</label>
+            <input type="text" id="pokemon-shiny-image" />
 
             <button type="submit">Agregar Pokémon</button>
           </form>
