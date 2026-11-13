@@ -47,60 +47,68 @@ export function guardarUsuarios(usuario) {
 }
 
 // Actualizar los Pokémon guardados con los datos que faltan.
+
 function actualizarDatosPokemon() {
+
   const pokemonesGuardados = leerPokemones();
+
   let huboCambios = false;
 
+  // Recorrer los Pokémon guardados
   for (let pokemon of pokemonesGuardados) {
 
-    // Buscar el Pokémon original por ID.
-    const original = pokemonesDefecto.find(function (p) {
-      return p.id === pokemon.id;
-    });
+    // Recorrer los Pokémon originales
+    for (let original of pokemonesDefecto) {
 
-    // No modificar los Pokémon agregados por el usuario.
-    if (!original) {
-      continue;
+      // Comprobar si tienen el mismo ID
+      if (pokemon.id === original.id) {
+
+        // Completar descripción faltante
+        if (
+          pokemon.descripcion === undefined ||
+          pokemon.descripcion === ""
+        ) {
+          pokemon.descripcion = original.descripcion;
+          huboCambios = true;
+        }
+
+        // Corregir imágenes antiguas
+        if (
+          pokemon.imagen === "./assets/img/bulbasaur.png" ||
+          pokemon.imagen === "./assets/img/squirtle.png"
+        ) {
+          pokemon.imagen = original.imagen;
+          huboCambios = true;
+        }
+
+        // Actualizar los datos shiny
+        if (
+          pokemon.shiny === true &&
+          original.shiny === false
+        ) {
+          pokemon.shiny = false;
+          pokemon.imagenShiny = null;
+          huboCambios = true;
+        }
+
+      }
+
     }
 
-    // Agregar descripción si todavía no existe.
-    if (!pokemon.descripcion || !pokemon.descripcion.trim()) {
-      pokemon.descripcion = original.descripcion;
-      huboCambios = true;
-    }
-
-    // Corregir rutas antiguas de imágenes.
-    if (
-      pokemon.imagen === "./assets/img/bulbasaur.png" ||
-      pokemon.imagen === "./assets/img/squirtle.png"
-    ) {
-      pokemon.imagen = original.imagen;
-      huboCambios = true;
-    }
-
-    // Desactivar referencias shiny antiguas sin archivos.
-    const rutaShinyAntigua =
-      `./assets/img/${original.nombre.toLowerCase()}-shiny.png`;
-
-    if (
-      pokemon.shiny === true &&
-      pokemon.imagenShiny === rutaShinyAntigua
-    ) {
-      pokemon.shiny = false;
-      pokemon.imagenShiny = null;
-      huboCambios = true;
-    }
   }
 
-  // Guardar solamente si hubo modificaciones.
-  if (huboCambios) {
+  // Guardar solamente si hubo cambios
+  if (huboCambios === true) {
+
     localStorage.setItem(
       "pokemones",
       JSON.stringify(pokemonesGuardados)
     );
 
-    console.log("Datos de Pokémon actualizados correctamente.");
+    console.log("Datos de Pokémon actualizados");
+
   }
+
 }
 
 // Ejecutar la actualización al abrir la aplicación.
