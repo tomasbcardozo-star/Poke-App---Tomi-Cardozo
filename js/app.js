@@ -71,12 +71,35 @@ const pokedex = `
 `;
 
 // Función para cargar los elementos dinámicos
-function cargarPokedex() {
+
+function cargarPokedex(nombreBuscado) {
+
+  
+  // Si no recibimos un nombre, mostramos todos
+  if (nombreBuscado === undefined) {
+    nombreBuscado = "";
+  }
+
+  // Obtener los Pokémon guardados
   const pokemones = leerPokemones();
 
+  // Seleccionar la galería
   const pokedexGallery = document.querySelector("#pokedex-gallery");
 
+  // Limpiar la galería antes de mostrar los resultados
+  pokedexGallery.innerHTML = "";
+
+  // Contador de Pokémon encontrados
+  let encontrados = 0;
+
+  // Recorrer la base de datos
   for (let pokemon of pokemones) {
+
+    // Mostrar todos o solamente el Pokémon buscado
+    if (nombreBuscado === "" || pokemon.nombre === nombreBuscado) {
+
+      encontrados = encontrados + 1;
+
     pokedexGallery.innerHTML += `
       <article class="pokemon-card">
 
@@ -105,7 +128,7 @@ function cargarPokedex() {
             ${pokemon.rareza}
           </p>
 
-          <button class="btn-detalle" data-id="${pokemon.id}">
+          <button class="btn-detalle" id="detalle-${pokemon.id}">
             Ver detalles
           </button>
 
@@ -113,18 +136,43 @@ function cargarPokedex() {
 
       </article>
     `;
+
+    } // Cierra el if del nombre buscado
+
+  } // Cierra el for de Pokémon
+
+  // Mostrar mensaje si no encontramos ningún Pokémon
+  
+  if (encontrados === 0) {
+
+    pokedexGallery.innerHTML = `
+      <p>No se encontró ningún Pokémon con ese nombre.</p>
+    `;
+
   }
 
-  // Agregamos un evento a cada botón "Ver detalles".
-  const botonesDetalle = pokedexGallery.querySelectorAll(".btn-detalle");
+  // Recorrer nuevamente los Pokémon para agregar eventos
+  for (let pokemon of pokemones) {
 
-  for (let boton of botonesDetalle) {
-    boton.addEventListener("click", function () {
-      mostrarDetallePokemon(boton.dataset.id);
-    });
+    if (nombreBuscado === "" || pokemon.nombre === nombreBuscado) {
+
+      // Seleccionar el botón del Pokémon
+      const botonDetalle = document.querySelector("#detalle-" + pokemon.id);
+
+      // Agregar evento click
+      botonDetalle.addEventListener("click", function() {
+
+        mostrarDetallePokemon(pokemon.id);
+
+      });
+
+    }
+
   }
 
-}
+} // Cierra cargarPokedex
+
+
 
 function escaparHTML(valor) {
   return String(valor ?? "")
@@ -240,12 +288,44 @@ function mostrarDetallePokemon(id) {
 // Evento del botón Pokédex
 const botonPokedex = document.querySelector("#link-pokedex");
 
-botonPokedex.addEventListener("click", function (event) {
+
+botonPokedex.addEventListener("click", function(event) {
+
   event.preventDefault();
 
+  // Limpiar el buscador
+  document.querySelector("#busqueda").value = "";
+
+  // Mostrar la Pokédex completa
   app.innerHTML = pokedex;
 
   cargarPokedex();
+
+});
+
+
+// ==========================================
+// BUSCADOR DE POKÉMON
+// ==========================================
+
+// Seleccionar el formulario
+const formularioBusqueda = document.querySelector("#form-busqueda");
+
+// Detectar el envío de la búsqueda
+formularioBusqueda.addEventListener("submit", function(event) {
+
+  // Evitar que la página se recargue
+  event.preventDefault();
+
+  // Capturar el nombre ingresado
+  const nombreBuscado = document.querySelector("#busqueda").value;
+
+  // Mostrar la pantalla Pokédex
+  app.innerHTML = pokedex;
+
+  // Cargar los resultados de la búsqueda
+  cargarPokedex(nombreBuscado);
+
 });
 
 // ==========================================
@@ -986,14 +1066,6 @@ botonBatalla.addEventListener("click", function (event) {
 // 7. PERFIL USUARIO ADMIN
 // ==========================================
 
-// ==========================================
-// 8. LANDING INICIAL
-// ==========================================
-
-app.innerHTML = landing;
-
-cargarLanding();
-
 // Evento del enlace Mi perfil
 const botonPerfil = document.querySelector("#link-perfil");
 
@@ -1011,3 +1083,5 @@ if (usuarioActivo !== null) {
   mostrarPerfil();
 
 }
+
+
