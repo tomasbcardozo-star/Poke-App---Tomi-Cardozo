@@ -560,74 +560,176 @@ const perfilEstandar = `
 // ==========================================
 // 7. PERFIL USUARIO ADMIN
 // ==========================================
+
 function cargarPerfilAdmin() {
-  console.log("Perfil de usuario admin cargado");
 
   const formularioNuevoPokemon = document.querySelector("#form-nuevo-pokemon");
 
-  formularioNuevoPokemon.addEventListener("submit", function (event) {
+  formularioNuevoPokemon.addEventListener("submit", function(event) {
+
     event.preventDefault();
 
-// Verificar los permisos del usuario
-if (usuarioActivo === null || usuarioActivo.admin === false) {
+    // Comprobar permisos del administrador
+    if (usuarioActivo === null || usuarioActivo.admin === false) {
+      console.log("No tenés permisos para agregar Pokémon");
+      return;
+    }
 
-  console.log("No tenés permisos para agregar Pokémon");
-
-  return;
-
-}
+    // 1. Capturar los datos del formulario
 
     const numero = document.querySelector("#pokemon-number");
     const nombre = document.querySelector("#pokemon-name");
+    const descripcion = document.querySelector("#pokemon-description");
+
     const tipo = document.querySelector("#pokemon-type");
+    const segundoTipo = document.querySelector("#pokemon-second-type");
+
     const altura = document.querySelector("#pokemon-height");
     const peso = document.querySelector("#pokemon-weight");
     const generacion = document.querySelector("#pokemon-generation");
+
     const hp = document.querySelector("#pokemon-hp");
     const ataque = document.querySelector("#pokemon-attack");
     const velocidad = document.querySelector("#pokemon-speed");
     const defensa = document.querySelector("#pokemon-defense");
+
     const habilidad = document.querySelector("#pokemon-ability");
+
     const tieneEvolucion = document.querySelector(
-      'input[name="pokemon-has-evolution"]:checked',
+      'input[name="pokemon-has-evolution"]:checked'
     );
+
     const evolucion = document.querySelector("#pokemon-evolution");
     const nivelEvolucion = document.querySelector("#pokemon-evolution-level");
+
     const rareza = document.querySelector("#pokemon-rarity");
     const imagen = document.querySelector("#pokemon-image");
     const sonido = document.querySelector("#pokemon-sound");
+
     const shiny = document.querySelector("#pokemon-shiny");
     const imagenShiny = document.querySelector("#pokemon-shiny-image");
 
+    const mensaje = document.querySelector("#mensaje-nuevo-pokemon");
+
+    // 2. Convertir el número del Pokémon
+    const idPokemon = parseInt(numero.value);
+
+    // 3. Validar valores numéricos
+    if (
+      idPokemon <= 0 ||
+      altura.value * 1 <= 0 ||
+      peso.value * 1 <= 0 ||
+      generacion.value * 1 <= 0 ||
+      hp.value * 1 <= 0 ||
+      ataque.value * 1 <= 0 ||
+      velocidad.value * 1 <= 0 ||
+      defensa.value * 1 <= 0
+    ) {
+      mensaje.innerHTML = "Los valores numéricos deben ser mayores que cero.";
+      return;
+    }
+
+    // 4. Obtener los Pokémon guardados
+    const pokemones = leerPokemones();
+
+    // 5. Comprobar que el número no esté repetido
+    for (let pokemon of pokemones) {
+
+      if (pokemon.id === idPokemon) {
+        mensaje.innerHTML = "Ya existe un Pokémon con ese número.";
+        return;
+      }
+
+    }
+
+    // 6. Construir el array de tipos
+    const tipos = [tipo.value];
+
+    if (segundoTipo.value !== "") {
+      tipos.push(segundoTipo.value);
+    }
+
+    // 7. Validar y guardar los datos de evolución
+    let nombreEvolucion = null;
+    let nivel = null;
+
+    if (tieneEvolucion.value === "true") {
+
+      if (evolucion.value === "") {
+        mensaje.innerHTML = "Ingresá el nombre de la evolución.";
+        return;
+      }
+
+      nombreEvolucion = evolucion.value;
+
+      if (nivelEvolucion.value !== "") {
+        nivel = parseInt(nivelEvolucion.value);
+
+        if (nivel <= 0) {
+          mensaje.innerHTML = "El nivel de evolución debe ser mayor que cero.";
+          return;
+        }
+      }
+    }
+
+    // 8. Validar la imagen shiny
+    let rutaShiny = null;
+
+    if (shiny.checked === true) {
+
+      if (imagenShiny.value === "") {
+        mensaje.innerHTML = "Ingresá la imagen shiny.";
+        return;
+      }
+
+      rutaShiny = imagenShiny.value;
+    }
+
+    // 9. Construir el objeto Pokémon
     const nuevoPokemon = {
-      id: numero.valueAsNumber,
+      id: idPokemon,
       nombre: nombre.value,
-      tipo: [tipo.value],
-      altura: altura.valueAsNumber,
-      peso: peso.valueAsNumber,
-      generacion: generacion.valueAsNumber,
-      hp: hp.valueAsNumber,
-      ataque: ataque.valueAsNumber,
-      velocidad: velocidad.valueAsNumber,
-      defensa: defensa.valueAsNumber,
+      descripcion: descripcion.value,
+      tipo: tipos,
+
+      altura: altura.value * 1,
+      peso: peso.value * 1,
+      generacion: parseInt(generacion.value),
+
+      hp: parseInt(hp.value),
+      ataque: parseInt(ataque.value),
+      velocidad: parseInt(velocidad.value),
+      defensa: parseInt(defensa.value),
+
       habilidad: habilidad.value,
+
       tieneEvolucion: tieneEvolucion.value === "true",
-      evolucion: evolucion.value,
-      nivelEvolucion: nivelEvolucion.valueAsNumber,
+      evolucion: nombreEvolucion,
+      nivelEvolucion: nivel,
+
       rareza: rareza.value,
       imagen: imagen.value,
       sonido: sonido.value,
+
       shiny: shiny.checked,
-      imagenShiny: imagenShiny.value,
+      imagenShiny: rutaShiny
     };
 
-    console.log("Nuevo Pokémon agregado:", nuevoPokemon);
+    // 10. Guardar el Pokémon en localStorage
     guardarPokemones(nuevoPokemon);
 
+    console.log("Nuevo Pokémon agregado:", nuevoPokemon);
+
+    // 11. Mostrar confirmación
+    mensaje.innerHTML = "Pokémon guardado correctamente.";
+
+    // 12. Limpiar el formulario
     formularioNuevoPokemon.reset();
-    numero.focus();
+
   });
+
 }
+
 
 const perfilAdmin = ` <section class="user-profile" id="user-profile">
           <h2>Perfil de usuario</h2>
@@ -660,8 +762,14 @@ const perfilAdmin = ` <section class="user-profile" id="user-profile">
             <label for="pokemon-name">Nombre:</label>
             <input type="text" id="pokemon-name" required />
 
+            <label for="pokemon-description">Descripción:</label>
+            <textarea id="pokemon-description" rows="4" required></textarea>
+
             <label for="pokemon-type">Tipo:</label>
             <input type="text" id="pokemon-type" required />
+
+            <label for="pokemon-second-type">Segundo tipo (opcional):</label>
+            <input type="text" id="pokemon-second-type" />
 
             <label for="pokemon-height">Altura (m):</label>
             <input type="number" id="pokemon-height" step="0.1" required />
@@ -670,18 +778,22 @@ const perfilAdmin = ` <section class="user-profile" id="user-profile">
             <input type="number" id="pokemon-weight" step="0.1" required />
 
             <label for="pokemon-generation">Generación:</label>
-            <input type="number" id="pokemon-generation" required />
+            <input type="number" id="pokemon-generation" "min=1" required />
 
             <label for="pokemon-hp">HP:</label>
-            <input type="number" id="pokemon-hp" required />
+            <input type="number" id="pokemon-hp" "min=1" required />
+
             <label for="pokemon-attack">Ataque:</label>
-            <input type="number" id="pokemon-attack" required />
+            <input type="number" id="pokemon-attack" "min=1" required />
+
             <label for="pokemon-speed">Velocidad:</label>
-            <input type="number" id="pokemon-speed" required />
+            <input type="number" id="pokemon-speed" "min=1" required />
+
             <label for="pokemon-defense">Defensa:</label>
-            <input type="number" id="pokemon-defense" required />
+            <input type="number" id="pokemon-defense" "min=1" required />
 
             <label for="pokemon-ability">Habilidad:</label>
+  
             <select id="pokemon-ability" required>
              <option value="" disabled selected>Seleccioná una habilidad</option>
               <option value="" disabled selected>Selecciona una habilidad</option>
@@ -778,6 +890,7 @@ const perfilAdmin = ` <section class="user-profile" id="user-profile">
             <input type="text" id="pokemon-shiny-image" />
 
             <button type="submit">Agregar Pokémon</button>
+            <p id="mensaje-nuevo-pokemon"></p>
           </form>
         </section>`;
 

@@ -772,3 +772,21 @@ a:focus-visible,
 #btn-cerrar-sesion:hover {
   background-color: var(--rojo-oscuro);
 }
+
+/* ==========================================
+   FORMULARIO NUEVO POKÉMON
+========================================== */
+
+#pokemon-description {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  font-family: Arial, sans-serif;
+}
+
+#mensaje-nuevo-pokemon {
+  margin-top: 15px;
+  font-weight: bold;
+  color: var(--azul-oscuro);
+}
